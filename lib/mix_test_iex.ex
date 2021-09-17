@@ -1,18 +1,29 @@
 defmodule MixTestIEx do
-  @moduledoc """
-  Documentation for `MixTestIEx`.
-  """
+  def run(args \\ []) do
+    Mix.env(:test)
+    put_config(args)
 
-  @doc """
-  Hello world.
+    Application.ensure_all_started(:mix_test_iex)
 
-  ## Examples
+    ensure_iex_is_running!()
+  end
 
-      iex> MixTestIEx.hello()
-      :world
+  defp put_config(args) do
+    {_, paths} = OptionParser.parse!(args, switches: [])
 
-  """
-  def hello do
-    :world
+    paths =
+      if length(paths) == 0 do
+        ["lib", "test"]
+      else
+        paths
+      end
+
+    Application.put_env(:mix_test_iex, :paths, paths)
+  end
+
+  defp ensure_iex_is_running! do
+    unless IEx.started?() do
+      Mix.raise("mixt test.iex need a running iex shell, please run \"iex -S mix test.iex\"")
+    end
   end
 end
